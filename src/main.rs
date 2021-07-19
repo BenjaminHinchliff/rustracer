@@ -1,5 +1,6 @@
-use nalgebra::{Point3, Vector3};
+use nalgebra as na;
 
+mod ray;
 mod render;
 mod scene;
 mod sphere;
@@ -14,9 +15,9 @@ fn main() {
         height: 600,
         fov: 90.0,
         sphere: Sphere {
-            center: Point3::new(0.0, 0.0, -5.0),
+            center: na::Point3::new(0.0, 0.0, -5.0),
             radius: 1.0,
-            color: Vector3::new(0.4, 1.0, 0.4),
+            color: na::Vector3::new(0.4, 1.0, 0.4),
         },
     };
 

@@ -1,7 +1,7 @@
-use nalgebra::{Point3, RealField, Vector3};
+use nalgebra as na;
 
-pub struct Sphere<T: RealField> {
-    pub center: Point3<T>,
+pub struct Sphere<T: na::RealField> {
+    pub center: na::Point3<T>,
     pub radius: T,
-    pub color: Vector3<T>,
+    pub color: na::Vector3<T>,
 }

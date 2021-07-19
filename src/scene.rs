@@ -1,8 +1,8 @@
-use nalgebra::RealField;
+use nalgebra as na;
 
 use crate::sphere::Sphere;
 
-pub struct Scene<T: RealField> {
+pub struct Scene<T: na::RealField> {
     pub width: u32,
     pub height: u32,
     pub fov: T,
