@@ -3,6 +3,7 @@ use num::ToPrimitive;
 
 use crate::intersectable::Intersectable;
 
+#[derive(Debug)]
 pub struct Intersection<'a, T>
 where
     T: na::RealField + ToPrimitive,

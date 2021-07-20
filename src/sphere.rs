@@ -3,6 +3,7 @@ use num::ToPrimitive;
 
 use crate::{intersectable::Intersectable, ray::Ray};
 
+#[derive(Debug)]
 pub struct Sphere<T>
 where
     T: na::RealField + ToPrimitive,

@@ -26,28 +26,32 @@ where
 {
     let hit_point = ray.origin + (ray.direction * intersection.distance);
     let surface_normal = intersection.object.surface_normal(&hit_point);
-    let dir_to_light = -scene.light.direction.normalize();
 
-    let shadow_ray = Ray {
-        origin: hit_point + (surface_normal * scene.shadow_bias),
-        direction: dir_to_light,
-    };
-    let in_light = scene.trace(&shadow_ray).is_none();
+    let mut color = na::Vector3::zeros();
+    for light in &scene.lights {
+        let dir_to_light = light.direction_from(&hit_point);
 
-    let light_intensity = if in_light {
-        scene.light.intensity
-    } else {
-        T::zero()
-    };
-    let light_power = (surface_normal.dot(&dir_to_light)).max(T::zero()) * light_intensity;
-    let light_reflected = intersection.object.albedo() / T::pi();
+        let shadow_ray = Ray {
+            origin: hit_point + (surface_normal * scene.shadow_bias),
+            direction: dir_to_light,
+        };
+        let shadow_intersection = scene.trace(&shadow_ray);
+        let in_light = shadow_intersection.is_none()
+            || shadow_intersection.unwrap().distance > light.distance(&hit_point);
 
-    let color = intersection
-        .object
-        .color()
-        .component_mul(&scene.light.color)
-        * light_power
-        * light_reflected;
+        let light_intensity = if in_light {
+            light.intensity(&hit_point)
+        } else {
+            T::zero()
+        };
+        let light_power = (surface_normal.dot(&dir_to_light)).max(T::zero()) * light_intensity;
+        let light_reflected = intersection.object.albedo() / T::pi();
+
+        color += intersection.object.color().component_mul(&light.color())
+            * light_power
+            * light_reflected;
+    }
+
     color.apply_into(|e| e.clamp(T::zero(), T::one()))
 }
 

@@ -1,7 +1,9 @@
 use nalgebra as na;
 
+mod directional_light;
 mod intersectable;
 mod intersection;
+mod light;
 mod plane;
 mod ray;
 mod render;
@@ -12,7 +14,7 @@ use render::render;
 use scene::Scene;
 use sphere::Sphere;
 
-use crate::{plane::Plane, scene::Light};
+use crate::{directional_light::DirectionalLight, plane::Plane};
 
 fn main() {
     let scene = Scene {
@@ -51,11 +53,18 @@ fn main() {
                 albedo: 0.18,
             }),
         ],
-        light: Light {
-            direction: na::Vector3::new(-0.25, -1.0, -1.0),
-            color: na::Vector3::new(1.0, 1.0, 1.0),
-            intensity: 20.0,
-        },
+        lights: vec![
+            Box::new(DirectionalLight {
+                direction: na::Vector3::new(-0.25, -1.0, -1.0),
+                color: na::Vector3::new(0.3, 0.8, 0.3),
+                intensity: 20.0,
+            }),
+            Box::new(DirectionalLight {
+                direction: na::Vector3::new(0.25, -0.5, -0.5),
+                color: na::Vector3::new(0.8, 0.3, 0.3),
+                intensity: 10.0,
+            }),
+        ],
         shadow_bias: 1e-13,
     };
 

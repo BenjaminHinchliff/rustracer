@@ -3,6 +3,7 @@ use num::ToPrimitive;
 
 use crate::{intersectable::Intersectable, ray::Ray};
 
+#[derive(Debug)]
 pub struct Plane<T>
 where
     T: na::RealField + ToPrimitive,

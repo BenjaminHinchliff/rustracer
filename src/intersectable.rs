@@ -1,9 +1,11 @@
+use std::fmt::Debug;
+
 use nalgebra as na;
 use num::ToPrimitive;
 
 use crate::ray::Ray;
 
-pub trait Intersectable<T>
+pub trait Intersectable<T>: Debug
 where
     T: na::RealField + ToPrimitive,
 {
