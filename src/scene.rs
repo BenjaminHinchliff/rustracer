@@ -1,7 +1,7 @@
 use nalgebra as na;
 use num::ToPrimitive;
 
-use crate::{intersectable::Intersectable, intersection::Intersection, ray::Ray, sphere::Sphere};
+use crate::{intersectable::Intersectable, intersection::Intersection, ray::Ray};
 
 pub struct Scene<T, U>
 where
@@ -11,7 +11,7 @@ where
     pub width: u32,
     pub height: u32,
     pub fov: T,
-    pub spheres: Vec<Sphere<T, U>>,
+    pub objects: Vec<Box<dyn Intersectable<T, U>>>,
 }
 
 impl<T, U> Scene<T, U>
@@ -20,9 +20,9 @@ where
     U: na::RealField + ToPrimitive,
 {
     pub fn trace(&self, ray: &Ray<T>) -> Option<Intersection<T, U>> {
-        self.spheres
+        self.objects
             .iter()
-            .filter_map(|s| s.intersect(ray).map(|d| Intersection::new(d, s)))
+            .filter_map(|s| s.intersect(ray).map(|d| Intersection::new(d, s.as_ref())))
             .min_by(|a, b| a.distance.partial_cmp(&b.distance).unwrap())
     }
 }

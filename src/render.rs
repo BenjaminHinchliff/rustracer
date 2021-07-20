@@ -2,7 +2,7 @@ use image::{Rgb, RgbImage};
 use nalgebra as na;
 use num::ToPrimitive;
 
-use crate::{intersectable::Intersectable, ray::Ray, scene::Scene};
+use crate::{ray::Ray, scene::Scene};
 
 const BLACK: Rgb<u8> = Rgb([0, 0, 0]);
 
@@ -23,7 +23,7 @@ where
 {
     let intersection = scene.trace(ray);
     intersection
-        .map(|i| vec3_to_rgb(i.object.color))
+        .map(|i| vec3_to_rgb(i.object.color()))
         .unwrap_or(BLACK)
 }
 
