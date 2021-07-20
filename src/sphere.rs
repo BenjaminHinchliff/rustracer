@@ -1,7 +1,7 @@
 use nalgebra as na;
 use num::ToPrimitive;
 
-use crate::{intersectable::Intersectable, ray::Ray};
+use crate::{intersectable::Intersectable, material::Material, ray::Ray};
 
 #[derive(Debug)]
 pub struct Sphere<T>
@@ -10,8 +10,7 @@ where
 {
     pub center: na::Point3<T>,
     pub radius: T,
-    pub albedo: T,
-    pub color: na::Vector3<T>,
+    pub material: Material<T>,
 }
 
 impl<T> Intersectable<T> for Sphere<T>
@@ -43,11 +42,7 @@ where
         (*hit_point - self.center).normalize()
     }
 
-    fn albedo(&self) -> T {
-        self.albedo
-    }
-
-    fn color(&self) -> na::Vector3<T> {
-        self.color
+    fn material(&self) -> &Material<T> {
+        &self.material
     }
 }

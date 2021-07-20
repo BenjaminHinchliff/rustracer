@@ -1,7 +1,7 @@
 use nalgebra as na;
 use num::ToPrimitive;
 
-use crate::{intersectable::Intersectable, ray::Ray};
+use crate::{intersectable::Intersectable, material::Material, ray::Ray};
 
 #[derive(Debug)]
 pub struct Plane<T>
@@ -10,8 +10,7 @@ where
 {
     pub origin: na::Point3<T>,
     pub normal: na::Vector3<T>,
-    pub albedo: T,
-    pub color: na::Vector3<T>,
+    pub material: Material<T>,
 }
 
 impl<T> Intersectable<T> for Plane<T>
@@ -35,11 +34,7 @@ where
         -self.normal
     }
 
-    fn albedo(&self) -> T {
-        self.albedo
-    }
-
-    fn color(&self) -> na::Vector3<T> {
-        self.color
+    fn material(&self) -> &Material<T> {
+        &self.material
     }
 }
