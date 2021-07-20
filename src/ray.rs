@@ -3,21 +3,20 @@ use num::ToPrimitive;
 
 use crate::scene::Scene;
 
-pub struct Ray<T: na::RealField> {
+pub struct Ray<T: na::RealField + ToPrimitive> {
     pub origin: na::Point3<T>,
     pub direction: na::Vector3<T>,
 }
 
-fn to_radians<T: na::RealField>(a: T) -> T {
+fn to_radians<T: na::RealField + ToPrimitive>(a: T) -> T {
     a * T::pi() / na::convert(180.0)
 }
 
-impl<T: na::RealField> Ray<T> {
-    pub fn new_prime<U: na::RealField + ToPrimitive>(
-        x: u32,
-        y: u32,
-        scene: &Scene<T, U>,
-    ) -> Ray<T> {
+impl<T> Ray<T>
+where
+    T: na::RealField + ToPrimitive,
+{
+    pub fn new_prime(x: u32, y: u32, scene: &Scene<T>) -> Ray<T> {
         let Scene {
             width, height, fov, ..
         } = *scene;

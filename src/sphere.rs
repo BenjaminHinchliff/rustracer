@@ -3,20 +3,19 @@ use num::ToPrimitive;
 
 use crate::{intersectable::Intersectable, ray::Ray};
 
-pub struct Sphere<T, U>
+pub struct Sphere<T>
 where
-    T: na::RealField,
-    U: na::RealField + ToPrimitive,
+    T: na::RealField + ToPrimitive,
 {
     pub center: na::Point3<T>,
     pub radius: T,
-    pub color: na::Vector3<U>,
+    pub albedo: T,
+    pub color: na::Vector3<T>,
 }
 
-impl<T, U> Intersectable<T, U> for Sphere<T, U>
+impl<T> Intersectable<T> for Sphere<T>
 where
-    T: na::RealField,
-    U: na::RealField + ToPrimitive,
+    T: na::RealField + ToPrimitive,
 {
     fn intersect(&self, ray: &Ray<T>) -> Option<T> {
         let l = self.center - ray.origin;
@@ -39,7 +38,15 @@ where
         Some(distance)
     }
 
-    fn color(&self) -> na::Vector3<U> {
+    fn surface_normal(&self, hit_point: &na::Point3<T>) -> na::Vector3<T> {
+        (*hit_point - self.center).normalize()
+    }
+
+    fn albedo(&self) -> T {
+        self.albedo
+    }
+
+    fn color(&self) -> na::Vector3<T> {
         self.color
     }
 }

@@ -3,21 +3,19 @@ use num::ToPrimitive;
 
 use crate::intersectable::Intersectable;
 
-pub struct Intersection<'a, T, U>
+pub struct Intersection<'a, T>
 where
-    T: na::RealField,
-    U: na::RealField + ToPrimitive,
+    T: na::RealField + ToPrimitive,
 {
     pub distance: T,
-    pub object: &'a dyn Intersectable<T, U>,
+    pub object: &'a dyn Intersectable<T>,
 }
 
-impl<T, U> Intersection<'_, T, U>
+impl<T> Intersection<'_, T>
 where
-    T: na::RealField,
-    U: na::RealField + ToPrimitive,
+    T: na::RealField + ToPrimitive,
 {
-    pub fn new(distance: T, object: &dyn Intersectable<T, U>) -> Intersection<T, U> {
+    pub fn new(distance: T, object: &dyn Intersectable<T>) -> Intersection<T> {
         Intersection { distance, object }
     }
 }

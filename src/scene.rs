@@ -3,23 +3,31 @@ use num::ToPrimitive;
 
 use crate::{intersectable::Intersectable, intersection::Intersection, ray::Ray};
 
-pub struct Scene<T, U>
+pub struct Light<T>
 where
-    T: na::RealField,
-    U: na::RealField + ToPrimitive,
+    T: na::RealField + ToPrimitive,
+{
+    pub direction: na::Vector3<T>,
+    pub color: na::Vector3<T>,
+    pub intensity: T,
+}
+
+pub struct Scene<T>
+where
+    T: na::RealField + ToPrimitive,
 {
     pub width: u32,
     pub height: u32,
     pub fov: T,
-    pub objects: Vec<Box<dyn Intersectable<T, U>>>,
+    pub objects: Vec<Box<dyn Intersectable<T>>>,
+    pub light: Light<T>,
 }
 
-impl<T, U> Scene<T, U>
+impl<T> Scene<T>
 where
-    T: na::RealField,
-    U: na::RealField + ToPrimitive,
+    T: na::RealField + ToPrimitive,
 {
-    pub fn trace(&self, ray: &Ray<T>) -> Option<Intersection<T, U>> {
+    pub fn trace(&self, ray: &Ray<T>) -> Option<Intersection<T>> {
         self.objects
             .iter()
             .filter_map(|s| s.intersect(ray).map(|d| Intersection::new(d, s.as_ref())))
