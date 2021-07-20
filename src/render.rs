@@ -4,8 +4,6 @@ use num::ToPrimitive;
 
 use crate::{intersection::Intersection, ray::Ray, scene::Scene};
 
-const BLACK: Rgb<u8> = Rgb([0, 0, 0]);
-
 fn vec3_to_rgb<T: na::RealField + ToPrimitive>(mut vec: na::Vector3<T>) -> Rgb<u8> {
     let u8_max = T::from_u8(u8::MAX).unwrap();
     vec *= u8_max;
@@ -54,29 +52,38 @@ where
     color.apply_into(|e| e.clamp(T::zero(), T::one()))
 }
 
-fn cast_ray<T>(scene: &Scene<T>, ray: &Ray<T>) -> Rgb<u8>
+fn cast_ray<T>(scene: &Scene<T>, ray: &Ray<T>) -> na::Vector3<T>
 where
     T: na::RealField + ToPrimitive,
 {
     let intersection = scene.trace(ray);
     intersection
-        .map(|i| vec3_to_rgb(calculate_color(scene, ray, &i)))
-        .unwrap_or(BLACK)
+        .map(|i| calculate_color(scene, ray, &i))
+        .unwrap_or(na::Vector3::zeros())
 }
 
 pub fn render<T>(scene: &Scene<T>) -> RgbImage
 where
     T: na::RealField + ToPrimitive,
 {
-    let Scene { width, height, .. } = *scene;
+    let Scene {
+        width,
+        height,
+        samples,
+        ..
+    } = *scene;
 
     let mut img = RgbImage::new(width, height);
     for x in 0..width {
         for y in 0..height {
-            let ray = Ray::new_prime(x, y, scene);
+            let mut color = na::Vector3::zeros();
+            for s in 0..samples {
+                let ray = Ray::new_prime(x, y, s, scene);
 
-            let color = cast_ray(scene, &ray);
-            img.put_pixel(x, y, color);
+                color += cast_ray(scene, &ray);
+            }
+            color /= T::from_u32(samples).unwrap();
+            img.put_pixel(x, y, vec3_to_rgb(color));
         }
     }
     img

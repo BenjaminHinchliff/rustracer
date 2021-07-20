@@ -10,6 +10,7 @@ where
 {
     pub width: u32,
     pub height: u32,
+    pub samples: u32,
     pub fov: T,
     pub objects: Vec<Box<dyn Intersectable<T>>>,
     pub lights: Vec<Box<dyn Light<T>>>,

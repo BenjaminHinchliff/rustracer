@@ -19,8 +19,9 @@ use crate::{directional_light::DirectionalLight, plane::Plane, spherical_light::
 
 fn main() {
     let scene = Scene {
-        width: 800,
-        height: 600,
+        width: 3840,
+        height: 2160,
+        samples: 9,
         fov: 90.0,
         objects: vec![
             Box::new(Sphere {

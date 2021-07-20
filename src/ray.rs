@@ -1,5 +1,5 @@
 use nalgebra as na;
-use num::ToPrimitive;
+use num::{ToPrimitive, integer::Roots};
 
 use crate::scene::Scene;
 
@@ -17,7 +17,7 @@ impl<T> Ray<T>
 where
     T: na::RealField + ToPrimitive,
 {
-    pub fn new_prime(x: u32, y: u32, scene: &Scene<T>) -> Ray<T> {
+    pub fn new_prime(x: u32, y: u32, s: u32, scene: &Scene<T>) -> Ray<T> {
         let Scene {
             width, height, fov, ..
         } = *scene;
@@ -27,16 +27,21 @@ where
         );
 
         let (width, height) = (T::from_u32(width).unwrap(), T::from_u32(height).unwrap());
-        let half = na::convert(0.5);
         let two = na::convert(2.0);
 
         let aspect = width / height;
         let fov_adj = (to_radians(fov) / two).tan();
 
+        let ss = scene.samples.sqrt();
+        let sw = T::one() / T::from_u32(ss).unwrap();
+        let sw_2 = sw / two;
+        let sx = T::from_u32(s % ss).unwrap() * sw + sw_2;
+        let sy = T::from_u32(s / ss).unwrap() * sw + sw_2;
+
         let x = T::from_u32(x).unwrap();
-        let sensor_x = (((x + half) / width) * two - T::one()) * aspect * fov_adj;
+        let sensor_x = (((x + sx) / width) * two - T::one()) * aspect * fov_adj;
         let y = T::from_u32(y).unwrap();
-        let sensor_y = T::one() - ((y + half) / height) * two;
+        let sensor_y = T::one() - ((y + sy) / height) * two;
 
         Ray {
             origin: na::Point3::origin(),
