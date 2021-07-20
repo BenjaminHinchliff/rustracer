@@ -26,8 +26,20 @@ where
 {
     let hit_point = ray.origin + (ray.direction * intersection.distance);
     let surface_normal = intersection.object.surface_normal(&hit_point);
-    let dir_to_light = -scene.light.direction;
-    let light_power = (surface_normal.dot(&dir_to_light)).max(T::zero()) * scene.light.intensity;
+    let dir_to_light = -scene.light.direction.normalize();
+
+    let shadow_ray = Ray {
+        origin: hit_point + (surface_normal * scene.shadow_bias),
+        direction: dir_to_light,
+    };
+    let in_light = scene.trace(&shadow_ray).is_none();
+
+    let light_intensity = if in_light {
+        scene.light.intensity
+    } else {
+        T::zero()
+    };
+    let light_power = (surface_normal.dot(&dir_to_light)).max(T::zero()) * light_intensity;
     let light_reflected = intersection.object.albedo() / T::pi();
 
     let color = intersection

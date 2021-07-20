@@ -21,6 +21,7 @@ where
     pub fov: T,
     pub objects: Vec<Box<dyn Intersectable<T>>>,
     pub light: Light<T>,
+    pub shadow_bias: T,
 }
 
 impl<T> Scene<T>

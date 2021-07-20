@@ -56,6 +56,7 @@ fn main() {
             color: na::Vector3::new(1.0, 1.0, 1.0),
             intensity: 20.0,
         },
+        shadow_bias: 1e-13,
     };
 
     let img = render(&scene);
