@@ -1,4 +1,5 @@
 use nalgebra as na;
+use num::ToPrimitive;
 
 use crate::scene::Scene;
 
@@ -12,7 +13,7 @@ fn to_radians<T: na::RealField>(a: T) -> T {
 }
 
 impl<T: na::RealField> Ray<T> {
-	pub fn new_prime(x: u32, y: u32, scene: &Scene<T>) -> Ray<T> {
+	pub fn new_prime<U: na::RealField + ToPrimitive>(x: u32, y: u32, scene: &Scene<T, U>) -> Ray<T> {
 		let Scene { width, height, fov, .. } = *scene;
 		assert!(width > height, "width must be greater than height to prevent distortion (for now)");
 

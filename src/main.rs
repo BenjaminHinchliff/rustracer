@@ -4,6 +4,7 @@ mod ray;
 mod render;
 mod scene;
 mod sphere;
+mod intersectable;
 
 use render::render;
 use scene::Scene;
