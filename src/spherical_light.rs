@@ -22,16 +22,16 @@ where
     }
 
     fn direction_from(&self, hit_point: &na::Point3<T>) -> na::Vector3<T> {
-		(self.position - hit_point).normalize()
+        (self.position - hit_point).normalize()
     }
 
     fn intensity(&self, hit_point: &na::Point3<T>) -> T {
-		let four = T::from_f64(4.0).unwrap();
-		let r2 = (self.position - hit_point).norm();
-		self.intensity / (four * T::pi() * r2)
+        let four = T::from_f64(4.0).unwrap();
+        let r2 = (self.position - hit_point).norm();
+        self.intensity / (four * T::pi() * r2)
     }
 
     fn distance(&self, hit_point: &na::Point3<T>) -> T {
-		(self.position - hit_point).magnitude()
+        (self.position - hit_point).magnitude()
     }
 }
