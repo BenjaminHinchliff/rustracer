@@ -3,6 +3,7 @@ use num::ToPrimitive;
 
 use crate::{intersectable::Intersectable, intersection::Intersection, light::Light, ray::Ray};
 
+#[derive(Debug)]
 pub struct Scene<T>
 where
     T: na::RealField + ToPrimitive,

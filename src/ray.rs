@@ -3,6 +3,7 @@ use num::ToPrimitive;
 
 use crate::scene::Scene;
 
+#[derive(Debug)]
 pub struct Ray<T: na::RealField + ToPrimitive> {
     pub origin: na::Point3<T>,
     pub direction: na::Vector3<T>,

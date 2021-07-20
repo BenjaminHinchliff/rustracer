@@ -3,6 +3,7 @@ use num::ToPrimitive;
 
 use crate::light::Light;
 
+#[derive(Debug)]
 pub struct DirectionalLight<T>
 where
     T: na::RealField + ToPrimitive,

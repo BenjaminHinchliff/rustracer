@@ -1,7 +1,9 @@
+use std::fmt::Debug;
+
 use nalgebra as na;
 use num::ToPrimitive;
 
-pub trait Light<T>
+pub trait Light<T>: Debug
 where
     T: na::RealField + ToPrimitive,
 {
