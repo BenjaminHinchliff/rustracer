@@ -75,6 +75,6 @@ fn main() {
         shadow_bias: 1e-13,
     };
 
-    let img = render(&scene);
+    let img = render(scene);
     img.save("render.png").expect("failed to save render");
 }

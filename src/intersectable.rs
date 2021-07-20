@@ -5,7 +5,7 @@ use num::ToPrimitive;
 
 use crate::ray::Ray;
 
-pub trait Intersectable<T>: Debug
+pub trait Intersectable<T>: Debug + Sync + Send
 where
     T: na::RealField + ToPrimitive,
 {

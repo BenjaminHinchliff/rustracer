@@ -3,7 +3,7 @@ use std::fmt::Debug;
 use nalgebra as na;
 use num::ToPrimitive;
 
-pub trait Light<T>: Debug
+pub trait Light<T>: Debug + Sync + Send
 where
     T: na::RealField + ToPrimitive,
 {

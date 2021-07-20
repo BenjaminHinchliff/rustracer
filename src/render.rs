@@ -1,6 +1,9 @@
+use std::sync::{Arc, Mutex};
+
 use image::{Rgb, RgbImage};
 use nalgebra as na;
 use num::ToPrimitive;
+use threadpool::ThreadPool;
 
 use crate::{intersection::Intersection, ray::Ray, scene::Scene};
 
@@ -62,7 +65,7 @@ where
         .unwrap_or(na::Vector3::zeros())
 }
 
-pub fn render<T>(scene: &Scene<T>) -> RgbImage
+pub fn render<T>(scene: Scene<T>) -> RgbImage
 where
     T: na::RealField + ToPrimitive,
 {
@@ -71,20 +74,31 @@ where
         height,
         samples,
         ..
-    } = *scene;
+    } = scene;
 
-    let mut img = RgbImage::new(width, height);
+    let img = Arc::new(Mutex::new(RgbImage::new(width, height)));
+    let scene = Arc::new(scene);
+    let pool = ThreadPool::new(num_cpus::get());
+
     for x in 0..width {
         for y in 0..height {
-            let mut color = na::Vector3::zeros();
-            for s in 0..samples {
-                let ray = Ray::new_prime(x, y, s, scene);
+            let img = img.clone();
+            let scene = scene.clone();
+            pool.execute(move || {
+                let mut color = na::Vector3::zeros();
+                for s in 0..samples {
+                    let ray = Ray::new_prime(x, y, s, &scene);
 
-                color += cast_ray(scene, &ray);
-            }
-            color /= T::from_u32(samples).unwrap();
-            img.put_pixel(x, y, vec3_to_rgb(color));
+                    color += cast_ray(&scene, &ray);
+                }
+                color /= T::from_u32(samples).unwrap();
+
+                let mut img = img.lock().unwrap();
+                img.put_pixel(x, y, vec3_to_rgb(color));
+            });
         }
     }
-    img
+
+    pool.join();
+    Arc::try_unwrap(img).unwrap().into_inner().unwrap()
 }
