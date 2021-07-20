@@ -16,7 +16,22 @@ fn vec3_to_rgb<T: na::RealField + ToPrimitive>(mut vec: na::Vector3<T>) -> Rgb<u
     ])
 }
 
-pub fn render<T: na::RealField, U: na::RealField + ToPrimitive>(scene: &Scene<T, U>) -> RgbImage {
+fn cast_ray<T, U>(scene: &Scene<T, U>, ray: &Ray<T>) -> Rgb<u8>
+where
+    T: na::RealField,
+    U: na::RealField + ToPrimitive,
+{
+    let intersection = scene.trace(ray);
+    intersection
+        .map(|i| vec3_to_rgb(i.object.color))
+        .unwrap_or(BLACK)
+}
+
+pub fn render<T, U>(scene: &Scene<T, U>) -> RgbImage
+where
+    T: na::RealField,
+    U: na::RealField + ToPrimitive,
+{
     let Scene { width, height, .. } = *scene;
 
     let mut img = RgbImage::new(width, height);
@@ -24,11 +39,7 @@ pub fn render<T: na::RealField, U: na::RealField + ToPrimitive>(scene: &Scene<T,
         for y in 0..height {
             let ray = Ray::new_prime(x, y, scene);
 
-            let color = if scene.sphere.intersect(&ray) {
-                vec3_to_rgb(scene.sphere.color)
-            } else {
-                BLACK
-            };
+            let color = cast_ray(scene, &ray);
             img.put_pixel(x, y, color);
         }
     }
