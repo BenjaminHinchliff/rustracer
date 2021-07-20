@@ -47,9 +47,8 @@ where
         let light_power = (surface_normal.dot(&dir_to_light)).max(T::zero()) * light_intensity;
         let light_reflected = intersection.object.albedo() / T::pi();
 
-        color += intersection.object.color().component_mul(&light.color())
-            * light_power
-            * light_reflected;
+        let light_color = light.color() * light_power * light_reflected;
+        color += intersection.object.color().component_mul(&light_color);
     }
 
     color.apply_into(|e| e.clamp(T::zero(), T::one()))

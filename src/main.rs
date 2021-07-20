@@ -9,12 +9,13 @@ mod ray;
 mod render;
 mod scene;
 mod sphere;
+mod spherical_light;
 
 use render::render;
 use scene::Scene;
 use sphere::Sphere;
 
-use crate::{directional_light::DirectionalLight, plane::Plane};
+use crate::{directional_light::DirectionalLight, plane::Plane, spherical_light::SphericalLight};
 
 fn main() {
     let scene = Scene {
@@ -54,15 +55,20 @@ fn main() {
             }),
         ],
         lights: vec![
-            Box::new(DirectionalLight {
-                direction: na::Vector3::new(-0.25, -1.0, -1.0),
+            Box::new(SphericalLight {
+                position: na::Point3::new(-2.0, 10.0, -3.0),
                 color: na::Vector3::new(0.3, 0.8, 0.3),
-                intensity: 20.0,
+                intensity: 10000.0,
+            }),
+            Box::new(SphericalLight {
+                position: na::Point3::new(0.25, 0.0, -2.0),
+                color: na::Vector3::new(0.8, 0.3, 0.3),
+                intensity: 1000.0,
             }),
             Box::new(DirectionalLight {
-                direction: na::Vector3::new(0.25, -0.5, -0.5),
-                color: na::Vector3::new(0.8, 0.3, 0.3),
-                intensity: 10.0,
+                direction: na::Vector3::new(0.0, 0.0, -1.0),
+                color: na::Vector3::new(1.0, 1.0, 1.0),
+                intensity: 0.0,
             }),
         ],
         shadow_bias: 1e-13,
