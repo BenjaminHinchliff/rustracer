@@ -21,7 +21,7 @@ use sphere::Sphere;
 use crate::{
     coloration::{Color, Texture},
     directional_light::DirectionalLight,
-    material::Material,
+    material::{Material, SurfaceType},
     plane::Plane,
     spherical_light::SphericalLight,
 };
@@ -42,6 +42,9 @@ fn main() {
                     color: Box::new(Color {
                         color: na::Vector3::new(0.4, 1.0, 0.4),
                     }),
+                    surface: SurfaceType::Reflective {
+                        reflectivity: 0.7,
+                    },
                     albedo: 0.18,
                 },
             }),
@@ -52,6 +55,7 @@ fn main() {
                     color: Box::new(Texture {
                         texture: checkerboard.clone(),
                     }),
+                    surface: SurfaceType::Diffuse,
                     albedo: 0.58,
                 },
             }),
@@ -62,6 +66,7 @@ fn main() {
                     color: Box::new(Color {
                         color: na::Vector3::new(1.0, 0.2, 0.2),
                     }),
+                    surface: SurfaceType::Diffuse,
                     albedo: 0.08,
                 },
             }),
@@ -72,6 +77,7 @@ fn main() {
                     color: Box::new(Color {
                         color: na::Vector3::new(0.6, 0.8, 1.0),
                     }),
+                    surface: SurfaceType::Diffuse,
                     albedo: 0.18,
                 },
             }),
@@ -82,6 +88,9 @@ fn main() {
                     color: Box::new(Texture {
                         texture: checkerboard,
                     }),
+                    surface: SurfaceType::Reflective {
+                        reflectivity: 0.5,
+                    },
                     albedo: 0.18,
                 },
             }),
@@ -104,6 +113,7 @@ fn main() {
             }),
         ],
         shadow_bias: 1e-13,
+        max_recursion_depth: 10,
     };
 
     let img = render(scene);

@@ -15,6 +15,7 @@ where
     pub objects: Vec<Box<dyn Intersectable<T>>>,
     pub lights: Vec<Box<dyn Light<T>>>,
     pub shadow_bias: T,
+    pub max_recursion_depth: u32,
 }
 
 impl<T> Scene<T>

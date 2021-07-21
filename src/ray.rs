@@ -1,5 +1,6 @@
+use na::Point3;
 use nalgebra as na;
-use num::{ToPrimitive, integer::Roots};
+use num::{integer::Roots, ToPrimitive};
 
 use crate::scene::Scene;
 
@@ -46,6 +47,18 @@ where
         Ray {
             origin: na::Point3::origin(),
             direction: na::Vector3::new(sensor_x, sensor_y, -T::one()).normalize(),
+        }
+    }
+
+    pub fn create_reflection(
+        normal: na::Vector3<T>,
+        incident: na::Vector3<T>,
+        intersection: Point3<T>,
+        bias: T,
+    ) -> Ray<T> {
+        Ray {
+            origin: intersection + (normal * bias),
+            direction: incident - (normal * T::from_f64(2.0).unwrap() * incident.dot(&normal))
         }
     }
 }

@@ -5,18 +5,21 @@ use nalgebra as na;
 use num::ToPrimitive;
 use threadpool::ThreadPool;
 
-use crate::{color_convert::vec3_to_rgb, intersection::Intersection, ray::Ray, scene::Scene};
+use crate::{
+    color_convert::vec3_to_rgb, intersectable::Intersectable, intersection::Intersection,
+    material::SurfaceType, ray::Ray, scene::Scene,
+};
 
-fn calculate_color<T>(
+fn shade_diffuse<T>(
     scene: &Scene<T>,
-    ray: &Ray<T>,
-    intersection: &Intersection<T>,
+    object: &dyn Intersectable<T>,
+    hit_point: &na::Point3<T>,
+    surface_normal: &na::Vector3<T>,
 ) -> na::Vector3<T>
 where
     T: na::RealField + ToPrimitive,
 {
-    let hit_point = ray.origin + (ray.direction * intersection.distance);
-    let surface_normal = intersection.object.surface_normal(&hit_point);
+    let tex_coords = object.texture_coords(&hit_point);
 
     let mut color = na::Vector3::zeros();
     for light in &scene.lights {
@@ -36,13 +39,12 @@ where
             T::zero()
         };
 
-        let material = intersection.object.material();
+        let material = object.material();
 
         let light_power = (surface_normal.dot(&dir_to_light)).max(T::zero()) * light_intensity;
         let light_reflected = material.albedo / T::pi();
 
         let light_color = light.color() * light_power * light_reflected;
-        let tex_coords = intersection.object.texture_coords(&hit_point);
         color += material
             .color
             .color(&tex_coords)
@@ -52,13 +54,41 @@ where
     color.apply_into(|e| e.clamp(T::zero(), T::one()))
 }
 
-fn cast_ray<T>(scene: &Scene<T>, ray: &Ray<T>) -> na::Vector3<T>
+fn calculate_color<T>(
+    scene: &Scene<T>,
+    ray: &Ray<T>,
+    intersection: &Intersection<T>,
+    depth: u32,
+) -> na::Vector3<T>
 where
     T: na::RealField + ToPrimitive,
 {
+    let hit_point = ray.origin + (ray.direction * intersection.distance);
+    let surface_normal = intersection.object.surface_normal(&hit_point);
+
+    let mut color = shade_diffuse(scene, intersection.object, &hit_point, &surface_normal);
+    if let SurfaceType::Reflective { reflectivity } = intersection.object.material().surface {
+        let reflection_ray =
+            Ray::create_reflection(surface_normal, ray.direction, hit_point, scene.shadow_bias);
+
+        color *= T::one() - reflectivity;
+        color += cast_ray(scene, &reflection_ray, depth + 1) * reflectivity;
+    }
+
+    color
+}
+
+fn cast_ray<T>(scene: &Scene<T>, ray: &Ray<T>, depth: u32) -> na::Vector3<T>
+where
+    T: na::RealField + ToPrimitive,
+{
+    if depth >= scene.max_recursion_depth {
+        return na::Vector3::zeros();
+    }
+
     let intersection = scene.trace(ray);
     intersection
-        .map(|i| calculate_color(scene, ray, &i))
+        .map(|i| calculate_color(scene, ray, &i, depth))
         .unwrap_or(na::Vector3::zeros())
 }
 
@@ -86,7 +116,7 @@ where
                 for s in 0..samples {
                     let ray = Ray::new_prime(x, y, s, &scene);
 
-                    color += cast_ray(&scene, &ray);
+                    color += cast_ray(&scene, &ray, 0);
                 }
                 color /= T::from_u32(samples).unwrap();
 
