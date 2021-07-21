@@ -11,5 +11,6 @@ where
 {
     fn intersect(&self, ray: &Ray<T>) -> Option<T>;
     fn surface_normal(&self, hit_point: &na::Point3<T>) -> na::Vector3<T>;
+    fn texture_coords(&self, hit_point: &na::Point3<T>) -> na::Vector2<T>;
     fn material(&self) -> &Material<T>;
 }

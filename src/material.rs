@@ -1,7 +1,7 @@
-use nalgebra as na;
+use crate::coloration::Coloration;
 
 #[derive(Debug)]
 pub struct Material<T> {
-    pub color: na::Vector3<T>,
+    pub color: Box<dyn Coloration<T>>,
     pub albedo: T,
 }

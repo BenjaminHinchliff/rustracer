@@ -1,21 +1,11 @@
 use std::sync::{Arc, Mutex};
 
-use image::{Rgb, RgbImage};
+use image::RgbImage;
 use nalgebra as na;
 use num::ToPrimitive;
 use threadpool::ThreadPool;
 
-use crate::{intersection::Intersection, ray::Ray, scene::Scene};
-
-fn vec3_to_rgb<T: na::RealField + ToPrimitive>(mut vec: na::Vector3<T>) -> Rgb<u8> {
-    let u8_max = T::from_u8(u8::MAX).unwrap();
-    vec *= u8_max;
-    Rgb([
-        vec.x.to_u8().unwrap(),
-        vec.y.to_u8().unwrap(),
-        vec.z.to_u8().unwrap(),
-    ])
-}
+use crate::{color_convert::vec3_to_rgb, intersection::Intersection, ray::Ray, scene::Scene};
 
 fn calculate_color<T>(
     scene: &Scene<T>,
@@ -52,7 +42,11 @@ where
         let light_reflected = material.albedo / T::pi();
 
         let light_color = light.color() * light_power * light_reflected;
-        color += material.color.component_mul(&light_color);
+        let tex_coords = intersection.object.texture_coords(&hit_point);
+        color += material
+            .color
+            .color(&tex_coords)
+            .component_mul(&light_color);
     }
 
     color.apply_into(|e| e.clamp(T::zero(), T::one()))

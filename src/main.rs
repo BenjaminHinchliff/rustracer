@@ -1,5 +1,7 @@
 use nalgebra as na;
 
+mod color_convert;
+mod coloration;
 mod directional_light;
 mod intersectable;
 mod intersection;
@@ -17,11 +19,16 @@ use scene::Scene;
 use sphere::Sphere;
 
 use crate::{
-    directional_light::DirectionalLight, material::Material, plane::Plane,
+    coloration::{Color, Texture},
+    directional_light::DirectionalLight,
+    material::Material,
+    plane::Plane,
     spherical_light::SphericalLight,
 };
 
 fn main() {
+    let checkerboard = image::open("checkerboard.png").expect("failed to open checkerboard texture!");
+
     let scene = Scene {
         width: 800,
         height: 600,
@@ -32,7 +39,9 @@ fn main() {
                 center: na::Point3::new(0.0, 0.0, -5.0),
                 radius: 1.0,
                 material: Material {
-                    color: na::Vector3::new(0.4, 1.0, 0.4),
+                    color: Box::new(Color {
+                        color: na::Vector3::new(0.4, 1.0, 0.4),
+                    }),
                     albedo: 0.18,
                 },
             }),
@@ -40,7 +49,9 @@ fn main() {
                 center: na::Point3::new(-3.0, 1.0, -6.0),
                 radius: 2.0,
                 material: Material {
-                    color: na::Vector3::new(0.2, 0.2, 1.0),
+                    color: Box::new(Texture {
+                        texture: checkerboard.clone(),
+                    }),
                     albedo: 0.58,
                 },
             }),
@@ -48,7 +59,9 @@ fn main() {
                 center: na::Point3::new(2.0, 2.0, -4.0),
                 radius: 2.25,
                 material: Material {
-                    color: na::Vector3::new(1.0, 0.2, 0.2),
+                    color: Box::new(Color {
+                        color: na::Vector3::new(1.0, 0.2, 0.2),
+                    }),
                     albedo: 0.08,
                 },
             }),
@@ -56,7 +69,9 @@ fn main() {
                 origin: na::Point3::new(0.0, 0.0, -20.0),
                 normal: na::Vector3::new(0.0, 0.0, -1.0),
                 material: Material {
-                    color: na::Vector3::new(0.6, 0.8, 1.0),
+                    color: Box::new(Color {
+                        color: na::Vector3::new(0.6, 0.8, 1.0),
+                    }),
                     albedo: 0.18,
                 },
             }),
@@ -64,7 +79,9 @@ fn main() {
                 origin: na::Point3::new(0.0, -2.0, 0.0),
                 normal: na::Vector3::new(0.0, -1.0, 0.0),
                 material: Material {
-                    color: na::Vector3::new(0.2, 0.2, 0.2),
+                    color: Box::new(Texture {
+                        texture: checkerboard,
+                    }),
                     albedo: 0.18,
                 },
             }),

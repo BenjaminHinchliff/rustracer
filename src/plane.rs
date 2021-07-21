@@ -34,6 +34,22 @@ where
         -self.normal
     }
 
+    fn texture_coords(&self, hit_point: &na::Point3<T>) -> na::Vector2<T> {
+        let mut x_axis = self
+            .normal
+            .cross(&na::Vector3::new(T::zero(), T::zero(), T::one()));
+        if x_axis.norm() == T::zero() {
+            x_axis = self
+                .normal
+                .cross(&na::Vector3::new(T::zero(), T::one(), T::zero()));
+        }
+
+        let y_axis = self.normal.cross(&x_axis);
+
+        let hit_vec = hit_point - self.origin;
+        na::Vector2::new(hit_vec.dot(&x_axis), hit_vec.dot(&y_axis))
+    }
+
     fn material(&self) -> &Material<T> {
         &self.material
     }

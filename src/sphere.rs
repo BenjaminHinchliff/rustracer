@@ -42,6 +42,13 @@ where
         (*hit_point - self.center).normalize()
     }
 
+    fn texture_coords(&self, hit_point: &na::Point3<T>) -> na::Vector2<T> {
+        let hit_vec = hit_point - self.center;
+        let x = T::one() + hit_vec.z.atan2(hit_vec.x) / T::pi() * T::from_f64(0.5).unwrap();
+        let y = (hit_vec.y / self.radius).acos() / T::pi();
+        na::Vector2::new(x, y)
+    }
+
     fn material(&self) -> &Material<T> {
         &self.material
     }
