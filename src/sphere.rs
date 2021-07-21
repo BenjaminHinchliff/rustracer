@@ -32,10 +32,14 @@ where
 
         if t0 < T::zero() && t1 < T::zero() {
             return None;
+        } else if t0 < T::zero() {
+            Some(t1)
+        } else if t1 < T::zero() {
+            Some(t0)
+        } else {
+            let distance = t0.min(t1);
+            Some(distance)
         }
-
-        let distance = t0.min(t1);
-        Some(distance)
     }
 
     fn surface_normal(&self, hit_point: &na::Point3<T>) -> na::Vector3<T> {

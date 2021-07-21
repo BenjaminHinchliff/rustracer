@@ -37,7 +37,7 @@ where
 {
     let signed_bound = bound as i32;
     let float_coord = val * T::from_i32(signed_bound).unwrap();
-    let wrapped_coord = float_coord.to_i32().unwrap() % signed_bound;
+    let wrapped_coord = float_coord.to_i32().unwrap_or(0) % signed_bound;
     if wrapped_coord < 0 {
         (wrapped_coord + signed_bound) as u32
     } else {

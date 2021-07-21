@@ -60,14 +60,17 @@ fn main() {
                 },
             }),
             Box::new(Sphere {
-                center: na::Point3::new(2.0, 2.0, -4.0),
-                radius: 2.25,
+                center: na::Point3::new(2.0, 1.0, -4.0),
+                radius: 1.5,
                 material: Material {
                     color: Box::new(Color {
-                        color: na::Vector3::new(1.0, 0.2, 0.2),
+                        color: na::Vector3::new(1.0, 1.0, 1.0),
                     }),
-                    surface: SurfaceType::Diffuse,
-                    albedo: 0.08,
+                    surface: SurfaceType::Refractive {
+                        index: 1.5,
+                        transparency: 1.0,
+                    },
+                    albedo: 0.18,
                 },
             }),
             Box::new(Plane {

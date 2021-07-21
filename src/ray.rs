@@ -1,4 +1,3 @@
-use na::Point3;
 use nalgebra as na;
 use num::{integer::Roots, ToPrimitive};
 
@@ -53,12 +52,43 @@ where
     pub fn create_reflection(
         normal: na::Vector3<T>,
         incident: na::Vector3<T>,
-        intersection: Point3<T>,
+        intersection: na::Point3<T>,
         bias: T,
     ) -> Ray<T> {
         Ray {
             origin: intersection + (normal * bias),
-            direction: incident - (normal * T::from_f64(2.0).unwrap() * incident.dot(&normal))
+            direction: incident - (normal * T::from_f64(2.0).unwrap() * incident.dot(&normal)),
+        }
+    }
+
+    pub fn create_transmission(
+        normal: na::Vector3<T>,
+        incident: na::Vector3<T>,
+        intersection: na::Point3<T>,
+        bias: T,
+        index: T,
+    ) -> Option<Ray<T>> {
+        let mut ref_n = normal;
+        let mut eta_t = index;
+        let mut eta_i = T::one();
+        let mut i_dot_n = incident.dot(&normal);
+        if i_dot_n < T::zero() {
+            i_dot_n = -i_dot_n;
+        } else {
+            ref_n = -normal;
+            eta_t = T::one();
+            eta_i = index;
+        }
+
+        let eta = eta_i / eta_t;
+        let k = T::one() - (eta * eta) * (T::one() - i_dot_n * i_dot_n);
+        if k < T::zero() {
+            None
+        } else {
+            Some(Ray {
+                origin: intersection + (ref_n * -bias),
+                direction: (incident + ref_n * i_dot_n) * eta - ref_n * k.sqrt(),
+            })
         }
     }
 }

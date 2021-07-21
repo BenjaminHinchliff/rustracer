@@ -10,11 +10,35 @@ use crate::{
     material::SurfaceType, ray::Ray, scene::Scene,
 };
 
+fn fresnel<T>(incident: na::Vector3<T>, normal: na::Vector3<T>, index: T) -> T
+where
+    T: na::RealField + ToPrimitive,
+{
+    let i_dot_n = incident.dot(&normal);
+    let mut eta_i = T::one();
+    let mut eta_t = index;
+    if i_dot_n > T::zero() {
+        eta_i = eta_t;
+        eta_t = T::one();
+    }
+
+    let sin_t = eta_i / eta_t * (T::one() - i_dot_n * i_dot_n).max(T::zero()).sqrt();
+    if sin_t > T::one() {
+        T::one()
+    } else {
+        let cos_t = (T::one() - sin_t * sin_t).max(T::zero()).sqrt();
+        let cos_i = cos_t.abs();
+        let r_s = ((eta_t * cos_i) - (eta_i * cos_t)) / ((eta_t * cos_i) + (eta_i * cos_t));
+        let r_p = ((eta_i * cos_i) - (eta_t * cos_t)) / ((eta_i * cos_i) + (eta_t * cos_t));
+        (r_s * r_s + r_p * r_p) / T::from_f64(2.0).unwrap()
+    }
+}
+
 fn shade_diffuse<T>(
     scene: &Scene<T>,
     object: &dyn Intersectable<T>,
-    hit_point: &na::Point3<T>,
-    surface_normal: &na::Vector3<T>,
+    hit_point: na::Point3<T>,
+    surface_normal: na::Vector3<T>,
 ) -> na::Vector3<T>
 where
     T: na::RealField + ToPrimitive,
@@ -64,18 +88,51 @@ where
     T: na::RealField + ToPrimitive,
 {
     let hit_point = ray.origin + (ray.direction * intersection.distance);
-    let surface_normal = intersection.object.surface_normal(&hit_point);
+    let normal = intersection.object.surface_normal(&hit_point);
 
-    let mut color = shade_diffuse(scene, intersection.object, &hit_point, &surface_normal);
-    if let SurfaceType::Reflective { reflectivity } = intersection.object.material().surface {
-        let reflection_ray =
-            Ray::create_reflection(surface_normal, ray.direction, hit_point, scene.shadow_bias);
+    let material = intersection.object.material();
+    match material.surface {
+        SurfaceType::Diffuse => shade_diffuse(scene, intersection.object, hit_point, normal),
+        SurfaceType::Reflective { reflectivity } => {
+            let mut color = shade_diffuse(scene, intersection.object, hit_point, normal);
 
-        color *= T::one() - reflectivity;
-        color += cast_ray(scene, &reflection_ray, depth + 1) * reflectivity;
+            let reflection_ray =
+                Ray::create_reflection(normal, ray.direction, hit_point, scene.shadow_bias);
+
+            color *= T::one() - reflectivity;
+            color += cast_ray(scene, &reflection_ray, depth + 1) * reflectivity;
+            color
+        }
+        SurfaceType::Refractive {
+            index,
+            transparency,
+        } => {
+            let mut refraction_color = na::Vector3::zeros();
+            let kr = fresnel(ray.direction, normal, index);
+            let surface_color = material
+                .color
+                .color(&intersection.object.texture_coords(&hit_point));
+
+            if kr < T::one() {
+                let transmission_ray = Ray::create_transmission(
+                    normal,
+                    ray.direction,
+                    hit_point,
+                    scene.shadow_bias,
+                    index,
+                )
+                .unwrap();
+                refraction_color = cast_ray(scene, &transmission_ray, depth + 1);
+            }
+
+            let reflection_ray =
+                Ray::create_reflection(normal, ray.direction, hit_point, scene.shadow_bias);
+            let reflection_color = cast_ray(scene, &reflection_ray, depth + 1);
+            let mut color = reflection_color * kr + refraction_color * (T::one() - kr);
+            color.component_mul_assign(&(surface_color * transparency));
+            color
+        }
     }
-
-    color
 }
 
 fn cast_ray<T>(scene: &Scene<T>, ray: &Ray<T>, depth: u32) -> na::Vector3<T>
