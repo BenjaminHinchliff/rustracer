@@ -30,9 +30,9 @@ fn main() {
     let checkerboard = image::open("checkerboard.png").expect("failed to open checkerboard texture!");
 
     let scene = Scene {
-        width: 800,
-        height: 600,
-        samples: 4,
+        width: 3840,
+        height: 2160,
+        samples: 9,
         fov: 90.0,
         objects: vec![
             Box::new(Sphere {
