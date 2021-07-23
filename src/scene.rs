@@ -1,7 +1,7 @@
 use nalgebra as na;
 use num::ToPrimitive;
 
-use crate::{intersectable::Intersectable, intersection::Intersection, light::Light, ray::Ray};
+use crate::{intersection::Intersection, lights::Light, objects::Intersectable, ray::Ray};
 
 #[derive(Debug)]
 pub struct Scene<T>

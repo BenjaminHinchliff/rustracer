@@ -1,7 +1,7 @@
 use nalgebra as na;
 use num::ToPrimitive;
 
-use crate::intersectable::Intersectable;
+use crate::objects::Intersectable;
 
 #[derive(Debug)]
 pub struct Intersection<'a, T>

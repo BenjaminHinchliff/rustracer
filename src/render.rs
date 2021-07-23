@@ -6,8 +6,8 @@ use num::ToPrimitive;
 use threadpool::ThreadPool;
 
 use crate::{
-    color_convert::vec3_to_rgb, intersectable::Intersectable, intersection::Intersection,
-    material::SurfaceType, ray::Ray, scene::Scene,
+    color_convert::vec3_to_rgb, intersection::Intersection, material::SurfaceType,
+    objects::Intersectable, ray::Ray, scene::Scene,
 };
 
 fn fresnel<T>(incident: na::Vector3<T>, normal: na::Vector3<T>, index: T) -> T
