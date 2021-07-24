@@ -114,6 +114,7 @@ mod tests {
             max_recursion_depth: 20,
         };
 
-        render(scene);
+        let img = render(scene);
+        img.save("render.png").unwrap();
     }
 }
